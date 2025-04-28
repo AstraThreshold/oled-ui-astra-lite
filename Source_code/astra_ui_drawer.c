@@ -134,7 +134,7 @@ void astra_draw_info_bar()
   if (!astra_info_bar.is_running) return;
 
   //弹窗到位后才开始计算时间
-  if (astra_info_bar.y_info_bar == astra_info_bar.y_info_bar_trg) astra_info_bar.time = launcher_get_tick_ms();
+  if (astra_info_bar.y_info_bar == astra_info_bar.y_info_bar_trg) astra_info_bar.time = get_ticks();
 
   //时间到了就收回
   if (astra_info_bar.time - astra_info_bar.time_start >= astra_info_bar.span)
@@ -176,7 +176,7 @@ void astra_draw_pop_up()
   if (!astra_pop_up.is_running) return;
 
   //弹窗到位后才开始计算时间
-  if (astra_pop_up.y_pop_up == astra_pop_up.y_pop_up_trg) astra_pop_up.time = launcher_get_tick_ms();
+  if (astra_pop_up.y_pop_up == astra_pop_up.y_pop_up_trg) astra_pop_up.time = get_ticks();
 
   //时间到了就收回
   if (astra_pop_up.time - astra_pop_up.time_start >= astra_pop_up.span)
@@ -332,7 +332,7 @@ void astra_draw_list_item()
         {
           static uint32_t _last_tick = 0;
           static bool _is_visiable = false;
-          uint32_t _ticks = launcher_get_tick_ms();
+          uint32_t _ticks = get_ticks();
 
           if (_is_visiable)
           {
