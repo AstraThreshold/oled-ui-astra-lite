@@ -293,6 +293,10 @@ void astra_draw_list_item()
       }
     } else if (astra_selector.selected_item->parent->child_list_item[i]->type == switch_item)
     {
+      astra_switch_item_t *_switch_item = astra_to_switch_item(astra_selector.selected_item->parent->child_list_item[i]);
+      if (_switch_item->init_function && astra_refresh_list_value)
+        _switch_item->init_function();
+
       if (_y_list_item + 7 > LIST_INFO_BAR_HEIGHT && _y_list_item + 1 < SCREEN_HEIGHT)
       {
         oled_draw_circle(4 + _x_list_item, _y_list_item + 1, 3);
@@ -300,7 +304,7 @@ void astra_draw_list_item()
 
         //开关控件指示器部分
         oled_draw_frame(OLED_WIDTH - LIST_ITEM_RIGHT_MARGIN - 7, _y_list_item - 2, 11, 7);
-        if (*astra_to_switch_item(astra_selector.selected_item->parent->child_list_item[i])->value == true)
+        if (*_switch_item->value == true)
         {
           oled_draw_box(OLED_WIDTH - LIST_ITEM_RIGHT_MARGIN - 1, _y_list_item , 3, 3);
           oled_draw_pixel(OLED_WIDTH - LIST_ITEM_RIGHT_MARGIN - 4, _y_list_item + 1);
@@ -313,6 +317,10 @@ void astra_draw_list_item()
       }
     } else if (astra_selector.selected_item->parent->child_list_item[i]->type == slider_item)
     {
+      astra_slider_item_t *_slider_item = astra_to_slider_item(astra_selector.selected_item->parent->child_list_item[i]);
+      if (_slider_item->init_function && astra_refresh_list_value)
+        _slider_item->init_function();
+
       if (_y_list_item + 5 > LIST_INFO_BAR_HEIGHT && _y_list_item - 2 < SCREEN_HEIGHT)
       {
         oled_draw_V_line(3 + _x_list_item, _y_list_item - 1, 5);
@@ -322,13 +330,10 @@ void astra_draw_list_item()
 
         //滑块控件指示器部分
         char _value_str[10] = {};
-        int16_t* _value = astra_to_slider_item(astra_selector.selected_item->parent->child_list_item[i])->value;
-        sprintf(_value_str, "%d", *_value);
-
-        int16_t _x_value = OLED_WIDTH - LIST_ITEM_RIGHT_MARGIN - oled_get_str_width(_value_str) + 2;
+        sprintf(_value_str, "%d", *_slider_item->value);
 
         //如果选中了就闪烁 否则就一直显示
-        if (astra_to_slider_item(astra_selector.selected_item->parent->child_list_item[i])->is_confirmed)
+        if (_slider_item->is_confirmed)
         {
           static uint32_t _last_tick = 0;
           static bool _is_visiable = false;
@@ -361,6 +366,8 @@ void astra_draw_list_item()
       oled_draw_UTF8(10 + _x_list_item, _y_list_item + oled_get_str_height() / 2,
                    astra_selector.selected_item->parent->child_list_item[i]->content);
   }
+
+  astra_refresh_list_value = false;
 }
 
 void astra_draw_selector()

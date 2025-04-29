@@ -13,6 +13,7 @@ static void* astra_font;
 extern void astra_set_font(void* _font);
 
 extern bool astra_exit_animation_finished;
+extern bool astra_refresh_list_value;
 
 /*** 信息栏 ***/
 #define INFO_BAR_HEIGHT 15
@@ -89,6 +90,8 @@ typedef struct astra_switch_item_t
   astra_list_item_t base_item;
 
   bool *value;
+  void (*init_function)();
+  void (*exit_function)();
 } astra_switch_item_t;
 
 typedef struct astra_slider_item_t
@@ -101,6 +104,8 @@ typedef struct astra_slider_item_t
   uint8_t value_step;
   int16_t value_max;
   int16_t value_min;
+  void (*init_function)();
+  void (*exit_function)();
 } astra_slider_item_t;
 
 typedef struct astra_user_item_t
@@ -124,8 +129,8 @@ extern astra_slider_item_t *astra_to_slider_item(astra_list_item_t *_astra_list_
 extern astra_user_item_t *astra_to_user_item(astra_list_item_t *_astra_list_item);
 extern astra_list_item_t *astra_new_list_item(char *_content);
 //正确用法：astra_push_item_to_list(astra_get_root_list(), astra_new_list_item(...));
-extern astra_list_item_t *astra_new_switch_item(char *_content, bool *_value);
-extern astra_list_item_t *astra_new_slider_item(char *_content, int16_t *_value, uint8_t _step, int16_t _min, int16_t _max);
+extern astra_list_item_t *astra_new_switch_item(char *_content, bool *_value, void (*_init_function)(), void (*_exit_function)());
+extern astra_list_item_t *astra_new_slider_item(char *_content, int16_t *_value, uint8_t _step, int16_t _min, int16_t _max, void (*_init_function)(), void (*_exit_function)());
 extern astra_list_item_t *astra_new_user_item(char *_content, void (*_init_function)(), void (*_loop_function)(), void (*_exit_function)());
 //正确用法：astra_push_item_to_list(astra_get_root_list(), astra_new_user_item(...));
 

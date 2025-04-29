@@ -11,6 +11,8 @@ extern bool in_astra;
 
 extern void ad_astra();
 
+extern bool astra_is_in_user_item();
+
 extern void astra_refresh_info_bar();
 
 extern void astra_refresh_pop_up();

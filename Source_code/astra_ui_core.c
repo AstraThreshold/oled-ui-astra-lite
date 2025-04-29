@@ -61,6 +61,11 @@ void ad_astra()
   /**自行修改**/
 }
 
+bool astra_is_in_user_item()
+{
+  return (astra_selector.selected_item->type == user_item && astra_to_user_item(astra_selector.selected_item)->in_user_item) ? true : false;
+}
+
 void astra_animation(float *_pos, float _posTrg, float _speed)
 {
   if (*_pos != _posTrg)
@@ -155,19 +160,15 @@ void astra_ui_main_core()
   if (!in_astra) return;
 
   //切换in user item的逻辑
-  if (astra_exit_animation_status == 1)
+  if (astra_selector.selected_item->type == user_item && !astra_to_user_item(astra_selector.selected_item)->in_user_item)
   {
-    if (astra_selector.selected_item->type == user_item)
+    astra_user_item_t *_selected_user_item = astra_to_user_item(astra_selector.selected_item);
+
+    if (_selected_user_item->entering_user_item && astra_exit_animation_status == 1)
     {
-      astra_user_item_t* _selected_user_item = astra_to_user_item(astra_selector.selected_item);
-      if (_selected_user_item->entering_user_item)
-        _selected_user_item->in_user_item = 1;
-      else if (_selected_user_item->exiting_user_item)
-      {
-        if (_selected_user_item->user_item_inited && _selected_user_item->user_item_looping)
-          _selected_user_item->exit_function();
-        _selected_user_item->in_user_item = 0;
-      }
+      if (_selected_user_item->init_function != NULL)
+        _selected_user_item->init_function();
+      _selected_user_item->in_user_item = 1;
     }
   }
 
@@ -175,18 +176,17 @@ void astra_ui_main_core()
   if (astra_selector.selected_item->type == user_item && astra_to_user_item(astra_selector.selected_item)->in_user_item)
   {
     astra_user_item_t* _selected_user_item = astra_to_user_item(astra_selector.selected_item);
-    //初始化
-    if (!_selected_user_item->user_item_inited)
-    {
-      if (_selected_user_item->init_function != NULL)
-        _selected_user_item->init_function();
-      _selected_user_item->user_item_inited = true;
-    }
 
     if (_selected_user_item->loop_function != NULL)
     {
-      _selected_user_item->user_item_looping = true;
       _selected_user_item->loop_function();
+    }
+
+    if (_selected_user_item->exiting_user_item && astra_exit_animation_status == 1)
+    {
+        if (_selected_user_item->exit_function != NULL)
+            _selected_user_item->exit_function();
+        _selected_user_item->in_user_item = 0;
     }
   } else
   {
