@@ -161,7 +161,7 @@ void astra_draw_info_bar()
                   (int16_t)astra_info_bar.w_info_bar, INFO_BAR_HEIGHT + 4, 3);
   //向上移动四个像素 同时向下多画四个像素 只用下半部分圆角
 
-  oled_set_draw_color(2);
+  oled_set_draw_color(0);
   oled_draw_H_line(_x_info_bar + 2, _y_info_bar_2 - 2, (int16_t)(astra_info_bar.w_info_bar - 4));
   oled_draw_pixel(_x_info_bar + 1, _y_info_bar_2 - 3);
   oled_draw_pixel(_x_info_bar - 2, _y_info_bar_2 - 3);
@@ -203,7 +203,7 @@ void astra_draw_pop_up()
                   (int16_t)(astra_pop_up.w_pop_up + 4),
                   POP_UP_HEIGHT, 3);
 
-  oled_set_draw_color(2);
+  oled_set_draw_color(0);
   oled_draw_H_line(_x_pop_up, _y_pop_up - 2, (int16_t)astra_pop_up.w_pop_up);
   oled_draw_pixel(_x_pop_up - 1, _y_pop_up - 3);
   oled_draw_pixel((int16_t)(OLED_WIDTH/2 + astra_pop_up.w_pop_up/2), _y_pop_up - 3);
@@ -287,9 +287,7 @@ void astra_draw_list_item()
     {
       if (_y_list_item + 2 > LIST_INFO_BAR_HEIGHT && _y_list_item - 2 < SCREEN_HEIGHT)
       {
-        oled_draw_H_line(2 + _x_list_item, _y_list_item - 2, 4);
-        oled_draw_H_line(2 + _x_list_item, _y_list_item, 5);
-        oled_draw_H_line(2 + _x_list_item, _y_list_item + 2, 3);
+        astra_draw_list_icon(astra_selector.selected_item->parent->child_list_item[i]->icon, _x_list_item, _y_list_item);        
       }
     } else if (astra_selector.selected_item->parent->child_list_item[i]->type == switch_item)
     {
@@ -299,8 +297,7 @@ void astra_draw_list_item()
 
       if (_y_list_item + 7 > LIST_INFO_BAR_HEIGHT && _y_list_item + 1 < SCREEN_HEIGHT)
       {
-        oled_draw_circle(4 + _x_list_item, _y_list_item + 1, 3);
-        oled_draw_V_line(4 + _x_list_item, _y_list_item, 3);
+        astra_draw_list_icon(astra_selector.selected_item->parent->child_list_item[i]->icon, _x_list_item, _y_list_item);
 
         //开关控件指示器部分
         oled_draw_frame(OLED_WIDTH - LIST_ITEM_RIGHT_MARGIN - 7, _y_list_item - 2, 11, 7);
@@ -315,7 +312,15 @@ void astra_draw_list_item()
           oled_draw_pixel(OLED_WIDTH - LIST_ITEM_RIGHT_MARGIN, _y_list_item + 1);
         }
       }
-    } else if (astra_selector.selected_item->parent->child_list_item[i]->type == slider_item)
+    } else if (astra_selector.selected_item->parent->child_list_item[i]->type == button_item)
+    {
+      astra_button_item_t *_button_item = astra_to_button_item(astra_selector.selected_item->parent->child_list_item[i]);
+      if (_y_list_item + 7 > LIST_INFO_BAR_HEIGHT && _y_list_item + 1 < SCREEN_HEIGHT)
+      {
+        astra_draw_list_icon(astra_selector.selected_item->parent->child_list_item[i]->icon, _x_list_item, _y_list_item);
+      }
+    } 
+    else if (astra_selector.selected_item->parent->child_list_item[i]->type == slider_item)
     {
       astra_slider_item_t *_slider_item = astra_to_slider_item(astra_selector.selected_item->parent->child_list_item[i]);
       if (_slider_item->init_function && astra_refresh_list_value)
@@ -323,14 +328,13 @@ void astra_draw_list_item()
 
       if (_y_list_item + 5 > LIST_INFO_BAR_HEIGHT && _y_list_item - 2 < SCREEN_HEIGHT)
       {
-        oled_draw_V_line(3 + _x_list_item, _y_list_item - 1, 5);
-        oled_draw_V_line(6 + _x_list_item, _y_list_item - 1, 5);
-        oled_draw_box(2 + _x_list_item, _y_list_item - 2, 3, 3);
-        oled_draw_box(5 + _x_list_item, _y_list_item + 2, 3, 3);
+        astra_draw_list_icon(astra_selector.selected_item->parent->child_list_item[i]->icon, _x_list_item, _y_list_item);
 
         //滑块控件指示器部分
         char _value_str[10] = {};
         sprintf(_value_str, "%d", *_slider_item->value);
+
+        int16_t _x_value = OLED_WIDTH - LIST_ITEM_RIGHT_MARGIN - oled_get_str_width(_value_str) + 2;
 
         //如果选中了就闪烁 否则就一直显示
         if (_slider_item->is_confirmed)
@@ -345,7 +349,7 @@ void astra_draw_list_item()
             oled_draw_R_box(_x_value, _y_list_item - 4, oled_get_UTF8_width(_value_str) + 4, oled_get_str_height() - 2, 1);
           }
 
-          oled_set_draw_color(2);
+          oled_set_draw_color(0);
           oled_draw_str(_x_value + 2, _y_list_item + oled_get_str_height() / 2, _value_str);
 
           if (_ticks - _last_tick >= 1000)
@@ -358,7 +362,7 @@ void astra_draw_list_item()
     } else
     {
       if (_y_list_item + oled_get_str_height() / 2 > LIST_INFO_BAR_HEIGHT && _y_list_item + oled_get_str_height() / 2 < SCREEN_HEIGHT)
-        oled_draw_str(2 + _x_list_item, _y_list_item + oled_get_str_height() / 2, "-");
+        astra_draw_list_icon(astra_selector.selected_item->parent->child_list_item[i]->icon, _x_list_item, _y_list_item);
     }
 
     astra_set_font(u8g2_font_my_chinese);
@@ -368,6 +372,48 @@ void astra_draw_list_item()
   }
 
   astra_refresh_list_value = false;
+}
+
+void astra_draw_list_icon(astra_list_item_icon_t icon, uint16_t x, uint16_t y){
+  switch(icon){
+    case (list_icon):
+        oled_draw_H_line(2 + x, y - 2, 4);
+        oled_draw_H_line(2 + x, y, 5);
+        oled_draw_H_line(2 + x, y + 2, 3);
+      break;
+    case (switch_icon):
+        oled_draw_circle(4 + x, y + 1, 3);
+        oled_draw_V_line(4 + x, y, 3);
+      break;
+    case (plus_icon):
+        oled_draw_circle(4 + x, y + 1, 3);
+        oled_draw_V_line(4 + x, y, 3);
+        oled_draw_H_line(3 + x, y + 1, 3);
+      break;
+    case (slider_icon):
+        oled_draw_V_line(3 + x, y - 1, 5);
+        oled_draw_V_line(6 + x, y - 1, 5);
+        oled_draw_box(2 + x, y - 2, 3, 3);
+        oled_draw_box(5 + x, y + 2, 3, 3);
+      break;
+    case (user_icon):
+        oled_draw_str(2 + x, y + oled_get_str_height() / 2, "-");
+      break;
+    case (flag_icon):
+        oled_draw_V_line(6 + x, y - 1, 5);
+        oled_draw_box(3 + x, y - 2, 4, 3);
+      break;
+    case (power_icon):
+        oled_draw_circle(4 + x, y + 1, 3);
+        oled_draw_V_line(4 + x, y - 2, 3);
+        oled_set_draw_color(0);
+        oled_draw_pixel(x+3, y-2);
+        oled_draw_pixel(x+5, y-2);
+        oled_set_draw_color(1);
+      break;
+    default:
+      break;
+  }
 }
 
 void astra_draw_selector()
