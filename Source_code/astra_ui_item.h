@@ -71,11 +71,24 @@ typedef enum
   switch_item,
   slider_item,
   user_item,
+  button_item,
 } astra_list_item_type_t;
+
+typedef enum {
+    default_icon,
+    list_icon,
+    switch_icon,
+    plus_icon,
+    user_icon,
+    slider_icon,
+    flag_icon,
+    power_icon,
+} astra_list_item_icon_t;
 
 typedef struct astra_list_item_t
 {
   astra_list_item_type_t type;
+  astra_list_item_icon_t icon;
   char *content;
 
   uint8_t layer;
@@ -93,6 +106,13 @@ typedef struct astra_switch_item_t
   void (*init_function)();
   void (*exit_function)();
 } astra_switch_item_t;
+
+typedef struct astra_button_item_t
+{
+  astra_list_item_t base_item;
+
+  void (*exit_function)();
+} astra_button_item_t;
 
 typedef struct astra_slider_item_t
 {
@@ -125,13 +145,15 @@ typedef struct astra_user_item_t
 extern astra_list_item_t *astra_get_root_list();
 
 extern astra_switch_item_t *astra_to_switch_item(astra_list_item_t *_astra_list_item);
+extern astra_button_item_t *astra_to_button_item(astra_list_item_t *_astra_list_item);
 extern astra_slider_item_t *astra_to_slider_item(astra_list_item_t *_astra_list_item);
 extern astra_user_item_t *astra_to_user_item(astra_list_item_t *_astra_list_item);
-extern astra_list_item_t *astra_new_list_item(char *_content);
+extern astra_list_item_t *astra_new_list_item(char *_content, astra_list_item_icon_t icon);
 //正确用法：astra_push_item_to_list(astra_get_root_list(), astra_new_list_item(...));
-extern astra_list_item_t *astra_new_switch_item(char *_content, bool *_value, void (*_init_function)(), void (*_exit_function)());
-extern astra_list_item_t *astra_new_slider_item(char *_content, int16_t *_value, uint8_t _step, int16_t _min, int16_t _max, void (*_init_function)(), void (*_exit_function)());
-extern astra_list_item_t *astra_new_user_item(char *_content, void (*_init_function)(), void (*_loop_function)(), void (*_exit_function)());
+extern astra_list_item_t *astra_new_switch_item(char *_content, bool *_value, void (*_init_function)(), void (*_exit_function)(), astra_list_item_icon_t icon);
+extern astra_list_item_t *astra_new_button_item(char *_content, void (*_exit_function)(), astra_list_item_icon_t icon);
+extern astra_list_item_t *astra_new_slider_item(char *_content, int16_t *_value, uint8_t _step, int16_t _min, int16_t _max, void (*_init_function)(), void (*_exit_function)(), astra_list_item_icon_t icon);
+extern astra_list_item_t *astra_new_user_item(char *_content, void (*_init_function)(), void (*_loop_function)(), void (*_exit_function)(), astra_list_item_icon_t icon);
 //正确用法：astra_push_item_to_list(astra_get_root_list(), astra_new_user_item(...));
 
 //此种方法合理且安全，本质是将user item类转换为了基类，用于渲染

@@ -70,6 +70,14 @@ astra_switch_item_t *astra_to_switch_item(astra_list_item_t *_astra_list_item)
   return (astra_switch_item_t*)astra_get_root_list();
 }
 
+astra_button_item_t *astra_to_button_item(astra_list_item_t *_astra_list_item)
+{
+  if (_astra_list_item != NULL && _astra_list_item->type == button_item)
+    return (astra_button_item_t*)_astra_list_item;
+
+  return (astra_button_item_t*)astra_get_root_list();
+}
+
 astra_slider_item_t *astra_to_slider_item(astra_list_item_t *_astra_list_item)
 {
   if (_astra_list_item != NULL && _astra_list_item->type == slider_item)
@@ -100,16 +108,21 @@ astra_list_item_t *astra_get_root_list()
   return _astra_list_root_item;
 }
 
-astra_list_item_t *astra_new_list_item(char *_content)
+astra_list_item_t *astra_new_list_item(char *_content, astra_list_item_icon_t icon)
 {
   astra_list_item_t *_astra_list_item = malloc(sizeof(astra_list_item_t));
   memset(_astra_list_item, 0, sizeof(astra_list_item_t));
   _astra_list_item->type = list_item;
   _astra_list_item->content = _content;
+  if(icon == default_icon)
+    _astra_list_item->icon = list_icon;
+  else
+    _astra_list_item->icon = icon;
+
   return _astra_list_item;
 }
 
-astra_list_item_t *astra_new_switch_item(char *_content, bool *_value, void (*_init_function)(), void (*_exit_function)())
+astra_list_item_t *astra_new_switch_item(char *_content, bool *_value, void (*_init_function)(), void (*_exit_function)(), astra_list_item_icon_t icon)
 {
   astra_switch_item_t *_astra_switch_item = malloc(sizeof(astra_switch_item_t));
   memset(_astra_switch_item, 0, sizeof(astra_switch_item_t));
@@ -118,10 +131,31 @@ astra_list_item_t *astra_new_switch_item(char *_content, bool *_value, void (*_i
   _astra_switch_item->value = _value;
   _astra_switch_item->init_function = _init_function;
   _astra_switch_item->exit_function = _exit_function;
+  if(icon == default_icon)
+    _astra_switch_item->base_item.icon = switch_icon;
+  else
+    _astra_switch_item->base_item.icon = icon;
+
 return (astra_list_item_t*)_astra_switch_item;
 }
 
-astra_list_item_t *astra_new_slider_item(char *_content, int16_t *_value, uint8_t _step, int16_t _min, int16_t _max, void (*_init_function)(), void (*_exit_function)())
+astra_list_item_t *astra_new_button_item(char *_content, void (*_exit_function)(), astra_list_item_icon_t icon)
+{
+  astra_button_item_t *_astra_button_item = malloc(sizeof(astra_button_item_t));
+  memset(_astra_button_item, 0, sizeof(astra_button_item_t));
+  _astra_button_item->base_item.type = button_item;
+  _astra_button_item->base_item.content = _content;
+  _astra_button_item->exit_function = _exit_function;
+  if(icon == default_icon)
+    _astra_button_item->base_item.icon = plus_icon;
+  else
+    _astra_button_item->base_item.icon = icon;
+
+
+return (astra_list_item_t*)_astra_button_item;
+}
+
+astra_list_item_t *astra_new_slider_item(char *_content, int16_t *_value, uint8_t _step, int16_t _min, int16_t _max, void (*_init_function)(), void (*_exit_function)(), astra_list_item_icon_t icon)
 {
   astra_slider_item_t *_astra_slider_item = malloc(sizeof(astra_slider_item_t));
   memset(_astra_slider_item, 0, sizeof(astra_slider_item_t));
@@ -133,10 +167,15 @@ astra_list_item_t *astra_new_slider_item(char *_content, int16_t *_value, uint8_
   _astra_slider_item->value_max = _max;
   _astra_slider_item->init_function = _init_function;
   _astra_slider_item->exit_function = _exit_function;
+    if(icon == default_icon)
+    _astra_slider_item->base_item.icon = slider_icon;
+  else
+    _astra_slider_item->base_item.icon = icon;
+
 return (astra_list_item_t*)_astra_slider_item;
 }
 
-astra_list_item_t *astra_new_user_item(char *_content, void (*_init_function)(), void (*_loop_function)(), void (*_exit_function)())
+astra_list_item_t *astra_new_user_item(char *_content, void (*_init_function)(), void (*_loop_function)(), void (*_exit_function)(), astra_list_item_icon_t icon)
 {
   astra_user_item_t *_astra_user_item = malloc(sizeof(astra_user_item_t));
   memset(_astra_user_item, 0, sizeof(astra_user_item_t));
@@ -145,6 +184,11 @@ astra_list_item_t *astra_new_user_item(char *_content, void (*_init_function)(),
   _astra_user_item->init_function = _init_function;
   _astra_user_item->loop_function = _loop_function;
   _astra_user_item->exit_function = _exit_function;
+  if(icon == default_icon)
+    _astra_user_item->base_item.icon = user_icon;
+  else
+    _astra_user_item->base_item.icon = icon;
+
   return (astra_list_item_t*)_astra_user_item;  //转换回基类 但保留专有数据
 }
 
@@ -260,6 +304,15 @@ void astra_selector_jump_to_selected_item()
   {
     astra_switch_item_t* _selected_switch_item = astra_to_switch_item(astra_selector.selected_item);
     *_selected_switch_item->value = !*_selected_switch_item->value;
+    if (_selected_switch_item->exit_function)
+      _selected_switch_item->exit_function();
+    return;
+  }
+
+  if (astra_selector.selected_item->type == button_item)
+  {
+    astra_button_item_t* _selected_switch_item = astra_to_button_item(astra_selector.selected_item);
+
     if (_selected_switch_item->exit_function)
       _selected_switch_item->exit_function();
     return;

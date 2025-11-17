@@ -18,6 +18,8 @@ extern void astra_draw_list_appearance();   //前景
 
 extern void astra_draw_list_item();   //背景
 
+extern void astra_draw_list_icon(astra_list_item_icon_t icon, uint16_t x, uint16_t y);
+
 extern void astra_draw_selector();    //背景
 
 extern void astra_draw_widget();    //总的控件 前景
